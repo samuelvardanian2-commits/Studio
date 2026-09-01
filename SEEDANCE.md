@@ -299,12 +299,18 @@ the devices where it matters most. The rig already does this; you just supply fr
 ```bash
 mkdir -p assets/frames
 ffmpeg -i flythrough.mp4 -vf "fps=18,scale=1280:-2" -q:v 7 assets/frames/frame_%04d.jpg
-ls assets/frames | wc -l        # note this number
 ```
 
-Then set `count` to that number in the `SEQ` block at the top of
-`assets/js/flythrough.js`. Nothing else changes — the section detects
-`frame_0001.jpg`, switches backends, and drops the procedural corridor.
+That is the whole job — **there is nothing to configure.** The section finds
+`frame_0001.jpg`, works out how many frames follow, switches backends and drops
+the procedural corridor. Re-render at a different length and it just picks up the
+new count; you never edit a number.
+
+It finds the count by doubling until a frame 404s, then binary-searching the gap —
+about 16 requests for a 180-frame sequence. Frames have to be contiguous from
+`0001`, which is what the ffmpeg command above produces. If you would rather skip
+the probe, set `count` to a number in the `SEQ` block at the top of
+`assets/js/flythrough.js` and it is used as-is.
 
 **Watch the weight.** This technique is genuinely heavy: 180 frames at 1280px is
 roughly 9 MB. Budget guide —

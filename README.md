@@ -38,7 +38,8 @@ camera moving through space. It has two backends behind one interface:
   drawn on canvas. No assets, no dependencies, works today.
 - **Sequence** — if `assets/frames/frame_0001.jpg` exists, scroll scrubs your Seedance
   render frame by frame instead. Canvas rather than `<video>`, because iOS Safari
-  seeks video in keyframe jumps and will not scrub smoothly.
+  seeks video in keyframe jumps and will not scrub smoothly. The frame count is
+  discovered automatically, so dropping the files in is the entire setup.
 
 `SEEDANCE.md` has the prompts and the ffmpeg command. The one rule: it must be a
 single unbroken take at constant speed — a cut becomes a jump-cut mid-scroll.

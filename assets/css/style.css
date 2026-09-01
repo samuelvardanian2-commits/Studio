@@ -555,8 +555,11 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
 }
 .fly__caps::before{
   content:""; position:absolute; z-index:-1; left:50%; top:50%;
-  width:min(150vw,1500px); height:min(70vh,520px); transform:translate(-50%,-50%);
-  background:radial-gradient(closest-side, rgba(8,8,10,.9), rgba(8,8,10,.55) 55%, transparent 100%);
+  width:100vw; height:min(62vh,460px); transform:translate(-50%,-50%);
+  /* a full-width band, not a blob — stays invisible on dark footage and still
+     reads as an intentional scrim if the sequence dropped in is a bright one */
+  background:linear-gradient(180deg, transparent 0%, rgba(8,8,10,.6) 26%,
+    rgba(8,8,10,.72) 50%, rgba(8,8,10,.6) 74%, transparent 100%);
 }
 .fly__cap{
   grid-area:1/1; max-width:18em;

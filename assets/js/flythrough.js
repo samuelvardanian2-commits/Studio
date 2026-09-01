@@ -18,7 +18,9 @@
   'use strict';
 
   var SEQ = {
-    dir: 'assets/frames/', prefix: 'frame_', pad: 4, ext: '.jpg', count: 180
+    dir: 'assets/frames/', prefix: 'frame_', pad: 4, ext: '.jpg',
+    count: 'auto',   // 'auto' discovers the frame count; set a number to skip the probe
+    max: 2000        // ceiling for the search, so a misconfigured path can't run away
   };
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,11 +61,34 @@
     return SEQ.dir + SEQ.prefix + n + SEQ.ext;
   }
 
-  function probeSequence(onYes, onNo) {
+  function frameExists(i, yes, no) {
     var img = new Image();
-    img.onload = function () { frames[0] = img; loadedCount = 1; onYes(); };
-    img.onerror = onNo;
-    img.src = framePath(1);
+    img.onload = function () { yes(img); };
+    img.onerror = no;
+    img.src = framePath(i);
+  }
+
+  /* How many frames are there? Double until one 404s, then binary search the
+     gap — about 2·log2(n) requests, ~16 for a 180-frame sequence. Beats making
+     someone hand-edit a count every time they re-render. Frames must be
+     contiguous from 1, which is what ffmpeg outputs anyway. */
+  function discoverCount(done) {
+    frameExists(1, function (first) {
+      frames[0] = first; loadedCount = 1;
+
+      function narrow(low, high) {           // low exists, high does not
+        if (high - low <= 1) { done(low); return; }
+        var mid = (low + high) >> 1;
+        frameExists(mid, function () { narrow(mid, high); },
+                         function () { narrow(low, mid); });
+      }
+
+      (function grow(lo, hi) {
+        if (hi > SEQ.max) { narrow(lo, SEQ.max + 1); return; }
+        frameExists(hi, function () { grow(hi, hi * 2); },
+                        function () { narrow(lo, hi); });
+      })(1, 2);
+    }, function () { done(0); });
   }
 
   function loadSequence() {
@@ -252,14 +277,26 @@
     window.addEventListener('scroll', kick, { passive: true });
     window.addEventListener('resize', function () { resize(); render(); });
 
-    probeSequence(function () {
+    function useSequence(n) {
+      SEQ.count = n;
       mode = 'sequence';
       section.setAttribute('data-mode', 'sequence');
+      section.setAttribute('data-frames', n);
       loadSequence();
       render();
-    }, function () {
-      section.setAttribute('data-mode', 'corridor');
-    });
+    }
+
+    if (typeof SEQ.count === 'number' && SEQ.count > 0) {
+      var manual = SEQ.count;
+      frameExists(1, function (first) {
+        frames[0] = first; loadedCount = 1; useSequence(manual);
+      }, function () { section.setAttribute('data-mode', 'corridor'); });
+    } else {
+      discoverCount(function (n) {
+        if (n > 0) useSequence(n);
+        else section.setAttribute('data-mode', 'corridor');
+      });
+    }
   }
 
   if (document.readyState === 'loading') {

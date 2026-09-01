@@ -1,4 +1,13 @@
-# Hero film — Seedance 2.5 prompts
+# Seedance 2.5 prompts
+
+Two different jobs, two different structures:
+
+- **[Hero film](#hero-film)** — the looping plate behind the name. Cuts are fine.
+- **[Scroll flythrough](#scroll-flythrough)** — the 3D scroll section. **Cuts are fatal.**
+
+---
+
+# Hero film
 
 Three options for `assets/video/hero.mp4`. Generate **A** first; **B** and **C** are
 alternates in the same grade so any of them drops straight in.
@@ -156,3 +165,156 @@ First and last frame must match sprocket phase for a seamless loop. NO eye glow.
 
 Nothing else to change. The markup already points at both paths, and the page falls back
 to the animated gradient — not a black box — for as long as either file is missing.
+
+
+---
+
+# Scroll flythrough
+
+The `.fly` section maps scroll position to a frame index. Scroll down, the camera
+moves through space. That is where the "3D" comes from — the parallax is real, baked
+in by a real camera move, not faked with CSS layers.
+
+Until you drop frames in, the section runs a procedural corridor of film frames on
+canvas, so it already works. These prompts replace it with your footage.
+
+### The one rule that matters
+
+**One unbroken take. No cuts.** A cut in the source becomes a jump-cut mid-scroll and
+the illusion dies instantly. This is the opposite of the hero prompts above, which use
+hard cuts on purpose — so do not reuse those here.
+
+Four more that decide whether it works:
+
+1. **Constant velocity.** Seedance likes to ease in and out. You do not want that —
+   scroll position maps linearly to time, so any easing reads as the page stuttering.
+   Say *constant speed, no acceleration, no easing* and say it in CONSTRAINTS too.
+2. **The camera is the only thing moving.** A person walking through frame makes the
+   scrub look like you are scrubbing a person, not flying through a space.
+3. **No fades, no dips to black, no flares across centre frame.** Type sits over the
+   middle third — keep it dark and low-detail.
+4. **Forward travel beats everything else** for depth. Orbit is the strong second.
+
+---
+
+## FLY A — "The corridor" (recommended)
+
+```
+[STYLE PREFIX]
+
+SUBJECT — No people. The subject is the movement itself: a continuous forward
+travelling shot through a vast dark interior hung with suspended rectangular panels,
+like film frames held in the air. WB 4300K. SINGLE UNBROKEN TAKE — no cuts.
+
+LOCATION — Enormous unlit hall, no visible floor or ceiling, standing haze. Suspended
+matte panels of varying size recede into darkness on both sides and above. STYLE
+REFERENCE ONLY — the model extends the space indefinitely forward. Do not reproduce
+the reference 1:1.
+
+ACTION — the camera travels forward at one unchanging speed for the entire duration,
+passing between and through the suspended panels. Nothing else in the scene moves.
+0:00–0:05 — panels resolve out of the far darkness and begin to pass the lens.
+0:05–0:10 — density increases; panels sweep past frame edges left, right and overhead.
+0:10–0:15 — the corridor opens out; a warm light source grows ahead but never arrives.
+
+CAMERA — one continuous forward dolly on a straight line, 35mm, camera height fixed,
+no pan, no tilt, no roll, no stop. Constant speed from first frame to last.
+
+STYLE — Dominant black and deep shadow 60% / Secondary cold indigo haze 30% /
+Accent warm ember edge-light catching the panel edges 10%. WB 4300K.
+
+CONSTRAINTS — 16:9. ONE CONTINUOUS TAKE — absolutely no cuts, no dissolves, no fades,
+no dips to black. CONSTANT SPEED — no acceleration, no deceleration, no ease-in,
+no ease-out. NO slow-motion. NO people, no text, no logos. Centre third of frame stays
+dark and uncluttered for overlaid type. No lens flare across centre frame. NO eye glow.
+```
+
+## FLY B — "The orbit"
+
+Scroll rotates the subject. Strong when you want one hero object rather than a journey.
+
+```
+[STYLE PREFIX]
+
+SUBJECT — A single monolithic object at centre: a matte black rectangular slab,
+human-scale ratio, standing upright in an empty space. No people. WB 4000K.
+SINGLE UNBROKEN TAKE — no cuts.
+
+LOCATION — Featureless dark void with a ground plane barely implied by contact shadow
+and a low haze. STYLE REFERENCE ONLY; the model extends the space.
+
+ACTION — the camera orbits the object through a full 360° at one unchanging speed.
+The object itself never moves or rotates. Light rakes across its face as the angle
+changes, which is the entire event.
+0:00–0:05 — first third of the orbit, key light behind, object nearly in silhouette.
+0:05–0:10 — second third, the face turns into the light and surface detail resolves.
+0:10–0:15 — final third, returning to the exact starting angle for a seamless loop.
+
+CAMERA — one continuous 360° orbit, 50mm, fixed height, fixed radius, subject locked
+dead centre of frame throughout. Constant angular speed.
+
+STYLE — Dominant black void 60% / Secondary cold rim light 30% / Accent warm ember
+kicker on one edge 10%. WB 4000K.
+
+CONSTRAINTS — 16:9. ONE CONTINUOUS TAKE — no cuts, no fades. CONSTANT angular speed —
+no ease. Subject stays centred and the same size in frame for the whole orbit. Last
+frame must match first frame exactly. NO people, no text, no logos. NO eye glow.
+```
+
+## FLY C — "The rise"
+
+```
+[STYLE PREFIX]
+
+SUBJECT — No people. A continuous vertical camera rise from ground level to high
+above a vast dark structure, revealing its scale. WB 4300K. SINGLE UNBROKEN TAKE.
+
+LOCATION — Immense dark architectural structure, concrete and steel, extending beyond
+frame in every direction, low haze pooling at the base. STYLE REFERENCE ONLY.
+
+ACTION — the camera rises vertically at one unchanging speed for the entire duration.
+0:00–0:05 — ground level, detail close and legible, haze thick.
+0:05–0:10 — climbing past structure; scale begins to register.
+0:10–0:15 — high above; the structure reads as a single enormous form.
+
+CAMERA — one continuous vertical crane/drone rise, 28mm, lens held level with the
+horizon throughout, no tilt, no pan, no rotation. Constant speed.
+
+STYLE — Dominant near-black concrete 60% / Secondary cold blue haze 30% / Accent warm
+ember practicals scattered through the structure 10%. WB 4300K.
+
+CONSTRAINTS — 16:9. ONE CONTINUOUS TAKE — no cuts, no fades. CONSTANT rise speed —
+no ease-in or ease-out. NO people, no text, no signage. Centre third stays dark for
+overlaid type. NO eye glow.
+```
+
+---
+
+## Getting it into the page
+
+Scrub from a **canvas image sequence, not a `<video>` element** — iOS Safari will not
+scrub video smoothly, it seeks in keyframe jumps and the effect falls apart on exactly
+the devices where it matters most. The rig already does this; you just supply frames.
+
+```bash
+mkdir -p assets/frames
+ffmpeg -i flythrough.mp4 -vf "fps=18,scale=1280:-2" -q:v 7 assets/frames/frame_%04d.jpg
+ls assets/frames | wc -l        # note this number
+```
+
+Then set `count` to that number in the `SEQ` block at the top of
+`assets/js/flythrough.js`. Nothing else changes — the section detects
+`frame_0001.jpg`, switches backends, and drops the procedural corridor.
+
+**Watch the weight.** This technique is genuinely heavy: 180 frames at 1280px is
+roughly 9 MB. Budget guide —
+
+| Frames | fps | Width | Rough total | Feels |
+|---|---|---|---|---|
+| 120 | 12 | 1280 | ~6 MB | Slightly steppy on fast scroll |
+| 180 | 18 | 1280 | ~9 MB | Smooth — the sweet spot |
+| 240 | 24 | 1600 | ~20 MB | Silky, too heavy for most sites |
+
+Generate **10 seconds** and extract at 18fps for 180 frames. Frames load
+progressively and the rig draws the nearest one it already has, so the section is
+usable before the whole sequence has arrived.

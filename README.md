@@ -8,7 +8,9 @@ Netlify, Vercel, Cloudflare Pages, GitHub Pages or any bucket.
 index.html              the page — all copy lives in the marked CONTENT BLOCK
 assets/css/style.css    tokens, components, responsive, reduced-motion
 assets/js/main.js       preloader, nav, reveals, counters, clock, magnetic link
-assets/video/hero.mp4   ← your Seedance film goes here (see SEEDANCE.md)
+assets/js/flythrough.js scroll-driven 3D section (procedural, or scrubs your frames)
+assets/video/hero.mp4   ← your Seedance hero film goes here (see SEEDANCE.md)
+assets/frames/          ← optional flythrough sequence, frame_0001.jpg onward
 assets/img/hero-poster.jpg  ← optional still for slow connections
 scripts/build_preview.py    inlines everything into dist/preview.html
 SEEDANCE.md             ready-to-run Seedance 2.5 prompts for the hero film
@@ -26,6 +28,20 @@ Render one of the prompts in `SEEDANCE.md`, save it to `assets/video/hero.mp4`, 
 the markup already points there. Until that file exists the hero shows an animated
 gradient plate rather than a black box, so the page is never broken mid-build. Same for
 `assets/img/hero-poster.jpg`, which is optional.
+
+## The scroll flythrough
+
+Between the manifesto and the work grid, a pinned section maps scroll position to a
+camera moving through space. It has two backends behind one interface:
+
+- **Procedural** (default) — a corridor of film frames receding to a vanishing point,
+  drawn on canvas. No assets, no dependencies, works today.
+- **Sequence** — if `assets/frames/frame_0001.jpg` exists, scroll scrubs your Seedance
+  render frame by frame instead. Canvas rather than `<video>`, because iOS Safari
+  seeks video in keyframe jumps and will not scrub smoothly.
+
+`SEEDANCE.md` has the prompts and the ffmpeg command. The one rule: it must be a
+single unbroken take at constant speed — a cut becomes a jump-cut mid-scroll.
 
 ## Make it yours
 

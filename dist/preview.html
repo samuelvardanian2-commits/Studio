@@ -535,6 +535,58 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
   .preloader{display:none}
 }
 
+/* ─── flythrough ────────────────────────────────────────────────────── */
+.vh{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+.fly{height:340vh; position:relative; background:var(--ink)}
+.fly__stage{
+  position:sticky; top:0; height:100svh; overflow:hidden;
+  display:grid; place-items:center;
+}
+.fly__canvas{position:absolute; inset:0; width:100%; height:100%; display:block}
+.fly__vignette{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(115% 85% at 50% 50%, transparent 34%, rgba(8,8,10,.86) 100%),
+    linear-gradient(180deg, var(--ink) 0%, transparent 16%, transparent 84%, var(--ink) 100%);
+}
+.fly__caps{
+  position:relative; z-index:2; display:grid; place-items:center;
+  padding-inline:var(--pad); text-align:center; pointer-events:none;
+}
+.fly__caps::before{
+  content:""; position:absolute; z-index:-1; left:50%; top:50%;
+  width:min(150vw,1500px); height:min(70vh,520px); transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side, rgba(8,8,10,.9), rgba(8,8,10,.55) 55%, transparent 100%);
+}
+.fly__cap{
+  grid-area:1/1; max-width:18em;
+  font-family:var(--display); font-size:clamp(1.6rem,4.6vw,3.6rem);
+  line-height:1.1; letter-spacing:-.025em; text-wrap:balance;
+  opacity:0; transform:translateY(14px) scale(.98);
+  /* exit faster than enter, so two lines never sit legibly on top of each other */
+  transition:opacity .2s var(--ease), transform .2s var(--ease);
+}
+.fly__cap em{font-style:italic; color:var(--ember)}
+.fly__cap.is-on{opacity:1; transform:none;
+  transition:opacity .5s var(--ease) .12s, transform .5s var(--ease) .12s;
+}
+.fly__hint{
+  position:absolute; z-index:2; bottom:1.75rem; left:50%; transform:translateX(-50%);
+  font-size:var(--fs-eyebrow); text-transform:uppercase; letter-spacing:.22em;
+  color:var(--paper-faint);
+}
+@media (prefers-reduced-motion:reduce){
+  /* no scroll binding — show one still and stack the lines so none overlap */
+  .fly{height:auto}
+  .fly__stage{position:static; height:auto; min-height:70svh; padding-block:var(--s6)}
+  .fly__caps{grid-auto-flow:row; gap:var(--s3)}
+  .fly__cap{grid-area:auto; opacity:1; transform:none}
+  .fly__hint{display:none}
+}
+
 </style>
 <!-- ══════════════════════════════════════════════════════════════════
      CONTENT BLOCK — everything you'd want to change is between the
@@ -642,6 +694,22 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
         <p class="mono eyebrow">Practice</p>
         <p>Twelve years in commercial post, four spent rebuilding that craft on top of generative models. The grammar of cinema didn't change. Only the camera did.</p>
       </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────  FLYTHROUGH  ───────────── -->
+  <section class="fly" aria-labelledby="flyTitle">
+    <h2 id="flyTitle" class="vh">Every frame is a decision</h2>
+    <div class="fly__stage">
+      <canvas class="fly__canvas" aria-hidden="true"></canvas>
+      <div class="fly__vignette" aria-hidden="true"></div>
+      <div class="fly__caps">
+        <p class="fly__cap is-on">Every frame is a decision.</p>
+        <p class="fly__cap">A ninety-second film is <em>two thousand</em> of them.</p>
+        <p class="fly__cap">I make each one on purpose.</p>
+      </div>
+      <p class="fly__hint mono" aria-hidden="true">Keep scrolling</p>
     </div>
   </section>
 
@@ -868,6 +936,7 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
 </footer>
 
 <!-- ══════════════════════  END CONTENT BLOCK  ══════════════════════ -->
+<script src="assets/js/flythrough.js"></script>
 <script>
 /* ==========================================================================
    Samuel Vardanian — interaction layer

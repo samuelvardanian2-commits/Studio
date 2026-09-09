@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-48.00 -48.00 96.00 96.00" width="96.00" height="96.00" fill="none" role="img" aria-label="Vardanian Studio mark">
+  <title>Vardanian Studio mark</title>
+  <path d="M -48.00,0.00 A 48.00,48.00 0 1 0 48.00,0.00 A 48.00,48.00 0 1 0 -48.00,0.00 Z M -40.00,0.00 A 40.00,40.00 0 1 1 40.00,0.00 A 40.00,40.00 0 1 1 -40.00,0.00 Z" fill="currentColor" fill-rule="evenodd"/>
+  <path d="M 11.05,-41.35 L 11.05,15.05 L 19.05,15.05 L 19.05,-41.35 Z" fill="currentColor"/>
+  <path d="M 41.35,11.05 L -15.05,11.05 L -15.05,19.05 L 41.35,19.05 Z" fill="currentColor"/>
+  <path d="M -11.05,41.35 L -11.05,-15.05 L -19.05,-15.05 L -19.05,41.35 Z" fill="currentColor"/>
+  <path d="M -41.35,-11.05 L 15.05,-11.05 L 15.05,-19.05 L -41.35,-19.05 Z" fill="currentColor"/>
+  <circle cx="0" cy="0" r="4.6" fill="currentColor"/>
+</svg>

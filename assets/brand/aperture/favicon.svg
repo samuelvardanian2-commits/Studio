@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0.00 0.00 100.00 100.00" width="100.00" height="100.00" fill="none" role="img" aria-label="Vardanian Studio">
+  <title>Vardanian Studio</title>
+  <rect width="100.0" height="100.0" rx="22.0" fill="#08080A"/>
+  <g transform="translate(50.00,50.00) scale(0.6947)" color="#F4F1EB">
+  <path d="M -47.50,0.00 A 47.50,47.50 0 1 0 47.50,0.00 A 47.50,47.50 0 1 0 -47.50,0.00 Z M -36.50,0.00 A 36.50,36.50 0 1 1 36.50,0.00 A 36.50,36.50 0 1 1 -36.50,0.00 Z" fill="currentColor" fill-rule="evenodd"/>
+  <path d="M 8.86,-39.47 L 8.86,14.36 L 19.86,14.36 L 19.86,-39.47 Z" fill="currentColor"/>
+  <path d="M 39.47,8.86 L -14.36,8.86 L -14.36,19.86 L 39.47,19.86 Z" fill="currentColor"/>
+  <path d="M -8.86,39.47 L -8.86,-14.36 L -19.86,-14.36 L -19.86,39.47 Z" fill="currentColor"/>
+  <path d="M -39.47,-8.86 L 14.36,-8.86 L 14.36,-19.86 L -39.47,-19.86 Z" fill="currentColor"/>
+  <circle cx="0" cy="0" r="5.6" fill="#FF5C28"/>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Samuel Vardanian — interaction layer
+   Claho Studio — interaction layer
    No dependencies. Everything degrades: no JS = a readable, complete page.
    ========================================================================== */
 (function () {

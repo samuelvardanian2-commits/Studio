@@ -1,6 +1,6 @@
-# Samuel Vardanian — portfolio
+# Claho Studio — site
 
-A dark-cinematic single-page portfolio. Static HTML, CSS and JavaScript with **no
+A dark-cinematic single-page site for Claho Studio. Static HTML, CSS and JavaScript with **no
 build step and no dependencies** — open `index.html` and it runs. Deploys as-is to
 Netlify, Vercel, Cloudflare Pages, GitHub Pages or any bucket.
 
@@ -13,6 +13,7 @@ assets/video/hero.mp4   ← your Seedance hero film goes here (see SEEDANCE.md)
 assets/frames/          ← optional flythrough sequence, frame_0001.jpg onward
 assets/img/hero-poster.jpg  ← optional still for slow connections
 scripts/build_preview.py    inlines everything into dist/preview.html
+archive/                frozen earlier versions, self-contained, not served
 SEEDANCE.md             ready-to-run Seedance 2.5 prompts for the hero film
 ```
 
@@ -47,10 +48,14 @@ single unbroken take at constant speed — a cut becomes a jump-cut mid-scroll.
 ## Make it yours
 
 Everything editable sits between the `CONTENT BLOCK` markers in `index.html`:
-name, role line, six projects, four capabilities, four process steps, four stats,
-the about copy, the quote, and the email address.
+studio name, role line, six projects, four capabilities, four process steps, four
+stats, the about copy, the quote, and the email address.
 
-Two more things worth knowing:
+Three more things worth knowing:
+
+- **The wordmark.** The brand is set as type, not as an image: `.nav__word` in the
+  stylesheet, used in the header and again in the footer. Renaming the studio is two
+  strings in `index.html` — there is no logo file to re-export.
 
 - **Project stills.** The six work cards use CSS gradient placeholders (`.fig--1`
   … `.fig--6` in the stylesheet) dressed with corner ticks and timecodes so they read

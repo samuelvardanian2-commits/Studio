@@ -1,8 +1,8 @@
-<title>Samuel Vardanian</title>
+<title>Claho Studio</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ==========================================================================
-   Samuel Vardanian — dark cinematic portfolio
+   Claho Studio — dark cinematic site
    Tokens → reset → atmosphere → components → responsive → reduced-motion
    ========================================================================== */
 
@@ -133,9 +133,15 @@ body.is-loading{overflow:hidden}
 }
 .nav.is-hidden{transform:translateY(-100%)}
 .nav{transition:transform .5s var(--ease), background .4s var(--ease), border-color .4s, padding .4s var(--ease)}
-.nav__brand{display:flex; align-items:flex-start; gap:.15rem; margin-right:auto}
-.nav__mark{font-family:var(--display); font-size:1.55rem; line-height:1; letter-spacing:.02em}
-.nav__reg{font-size:.55rem; color:var(--ember); margin-top:.15rem}
+.nav__brand{display:flex; align-items:baseline; margin-right:auto}
+.nav__word{
+  display:inline-flex; align-items:baseline; gap:.62em; white-space:nowrap;
+  font-size:.8rem; font-weight:500; line-height:1;
+  text-transform:uppercase; letter-spacing:.34em;
+}
+.nav__word-2{font-weight:400; color:var(--paper-faint); transition:color .35s}
+.nav__brand:hover .nav__word-2{color:var(--paper-dim)}
+.nav__word--foot{font-size:.78rem}
 .nav__links{display:flex; gap:var(--s4)}
 .nav__links a{
   font-size:var(--fs-meta); color:var(--paper-dim); display:flex; gap:.45rem;
@@ -346,7 +352,7 @@ body.is-ready .hero__title .line__in{transform:translateY(0)}
 
 /* film-still placeholders — swap for real stills, see README */
 .fig{position:relative}
-.fig .proj__frame,.fig.portrait{background-color:#0B0B0F}
+.fig .proj__frame,.fig.still{background-color:#0B0B0F}
 .fig--1 .proj__frame{background-image:
   radial-gradient(75% 60% at 18% 78%, rgba(255,138,52,.55), transparent 60%),
   radial-gradient(60% 70% at 78% 22%, rgba(36,78,96,.75), transparent 62%),
@@ -408,20 +414,20 @@ body.is-ready .hero__title .line__in{transform:translateY(0)}
 /* ─── about ─────────────────────────────────────────────────────────── */
 .about{display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.35fr); gap:var(--s6) var(--s5); align-items:start}
 .about__rail{position:sticky; top:7rem; display:grid; gap:var(--s3)}
-.portrait{
+.still{
   aspect-ratio:4/5; border:1px solid var(--line-soft); position:relative; overflow:hidden;
   background-image:
-    radial-gradient(65% 55% at 38% 26%, rgba(255,150,90,.34), transparent 62%),
-    radial-gradient(70% 70% at 76% 82%, rgba(48,60,110,.5), transparent 60%),
+    linear-gradient(178deg, rgba(255,150,90,.30) 0%, rgba(255,120,60,.06) 34%, transparent 46%),
+    radial-gradient(150% 42% at 50% 64%, rgba(48,60,110,.55), transparent 72%),
     linear-gradient(190deg,#12100F,#08080A);
 }
-.portrait::after{
+.still::after{
   content:""; position:absolute; inset:0;
   background:
     repeating-linear-gradient(180deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px),
     radial-gradient(120% 100% at 50% 40%, transparent 40%, rgba(8,8,10,.7) 100%);
 }
-.portrait__tag{
+.still__tag{
   position:absolute; z-index:1; left:.9rem; bottom:.85rem;
   font-size:var(--fs-eyebrow); letter-spacing:.22em; color:var(--paper-dim);
 }
@@ -495,7 +501,7 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
   .cap{grid-template-columns:5rem 1fr; }
   .cap__body{grid-column:2}
   .stats__grid{grid-template-columns:repeat(2,1fr); row-gap:var(--s4)}
-  .portrait{max-width:340px}
+  .still{max-width:340px}
 }
 @media (max-width:860px){
   .nav__links,.nav__cta{display:none}
@@ -516,6 +522,7 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
   .about__list li{grid-template-columns:1fr; gap:.2rem}
 }
 @media (max-width:520px){
+  .nav__word{font-size:.72rem; letter-spacing:.24em; gap:.5em}
   .eyebrow{letter-spacing:.14em}
   .cap{grid-template-columns:1fr; gap:.6rem}
   .cap__body{grid-column:1}
@@ -603,12 +610,13 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
 
 
 <header class="nav" id="nav">
-  <a class="nav__brand" href="#top" aria-label="Samuel Vardanian, home">
-    <span class="nav__mark">SV</span><span class="nav__reg">®</span>
+  <a class="nav__brand" href="#top" aria-label="Claho Studio, home">
+    <span class="nav__word">Claho <span class="nav__word-2">Studio</span></span>
   </a>
   <nav class="nav__links" aria-label="Primary">
     <a href="#work"><span class="mono nav__num">01</span> Work</a>
     <a href="#capabilities"><span class="mono nav__num">02</span> Capabilities</a>
+    <a href="#process"><span class="mono nav__num">03</span> Process</a>
     <a href="#about"><span class="mono nav__num">04</span> About</a>
   </nav>
   <a class="nav__cta" href="#contact">
@@ -646,16 +654,16 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
     <div class="hero__inner">
       <p class="eyebrow reveal" data-delay="0">
         <span class="dot" aria-hidden="true"></span>
-        AI Film Director &nbsp;/&nbsp; Creative Technologist
+        Synthetic Cinema Studio &nbsp;/&nbsp; Direction &amp; Finish
       </p>
 
       <h1 class="hero__title">
-        <span class="line"><span class="line__in">Samuel</span></span>
-        <span class="line"><span class="line__in">Vardanian</span></span>
+        <span class="line"><span class="line__in">Claho</span></span>
+        <span class="line"><span class="line__in">Studio</span></span>
       </h1>
 
       <p class="hero__lead reveal" data-delay="240">
-        I direct films that were never shot. <em>Synthetic cinema</em> — built frame
+        We direct films that were never shot. <em>Synthetic cinema</em> — built frame
         by frame, graded like celluloid, delivered at the speed of a thought.
       </p>
     </div>
@@ -689,13 +697,13 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
     <div class="wrap">
       <p class="statement" data-split>
         For a century, a film could only show what a camera could reach.
-        That constraint is gone. I build the image first and the camera second —
+        That constraint is gone. We build the image first and the camera second —
         directing light, lens and performance inside a machine until it
         remembers something that never happened.
       </p>
       <div class="manifesto__aside">
         <p class="mono eyebrow">Practice</p>
-        <p>Twelve years in commercial post, four spent rebuilding that craft on top of generative models. The grammar of cinema didn't change. Only the camera did.</p>
+        <p>Twelve years of commercial post behind the studio, four of them spent rebuilding that craft on top of generative models. The grammar of cinema didn't change. Only the camera did.</p>
       </div>
     </div>
   </section>
@@ -710,7 +718,7 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
       <div class="fly__caps">
         <p class="fly__cap is-on">Every frame is a decision.</p>
         <p class="fly__cap">A ninety-second film is <em>two thousand</em> of them.</p>
-        <p class="fly__cap">I make each one on purpose.</p>
+        <p class="fly__cap">We make each one on purpose.</p>
       </div>
       <p class="fly__hint mono" aria-hidden="true">Keep scrolling</p>
     </div>
@@ -800,7 +808,7 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
     <div class="wrap">
       <div class="sechead">
         <p class="mono eyebrow"><span class="sechead__num">02</span> Capabilities</p>
-        <h2 class="sechead__title">What I'm<br><em>hired for</em></h2>
+        <h2 class="sechead__title">What we're<br><em>hired for</em></h2>
       </div>
 
       <ul class="caps">
@@ -876,15 +884,15 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
     <div class="wrap about">
       <div class="about__rail">
         <p class="mono eyebrow"><span class="sechead__num">04</span> About</p>
-        <div class="portrait fig fig--portrait" role="img" aria-label="Portrait of Samuel Vardanian">
-          <span class="portrait__tag mono">SV / 2026</span>
+        <div class="still fig" role="img" aria-label="Frame from an in-house Claho Studio test film">
+          <span class="still__tag mono">CLAHO / 2026</span>
         </div>
       </div>
       <div class="about__body">
-        <h2 class="about__title">I spent twelve years making other people's footage look expensive. Now I make the footage too.</h2>
-        <p>My background is post — colour and finishing for agencies who cared about a quarter-stop. That work taught me the only thing that transfers cleanly into generative film: an image is convincing because of its <em>logic</em>, not its resolution. Where the light comes from. What the lens would actually do at that distance. Why the character is standing there at all.</p>
-        <p>Most AI video fails on exactly that. It is sharp and weightless. My job is to put the weight back — to direct these tools with the same discipline a crew brings to a set, so the result reads as a film someone made, not as output.</p>
-        <p>I work with a small number of clients at a time, usually brands, labels and directors who need something built that cannot be shot. If that's the problem in front of you, write to me.</p>
+        <h2 class="about__title">We spent twelve years making other people's footage look expensive. Now we make the footage too.</h2>
+        <p>The studio came out of post — colour and finishing for agencies who cared about a quarter-stop. That work taught us the only thing that transfers cleanly into generative film: an image is convincing because of its <em>logic</em>, not its resolution. Where the light comes from. What the lens would actually do at that distance. Why the character is standing there at all.</p>
+        <p>Most AI video fails on exactly that. It is sharp and weightless. Our job is to put the weight back — to direct these tools with the same discipline a crew brings to a set, so the result reads as a film someone made, not as output.</p>
+        <p>We take a small number of clients at a time, usually brands, labels and directors who need something built that cannot be shot. If that's the problem in front of you, write to us.</p>
         <ul class="about__list mono">
           <li><span>Based</span> Remote — worldwide</li>
           <li><span>Clients</span> Brands, labels, agencies, festivals</li>
@@ -899,7 +907,7 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
   <section class="quote">
     <div class="wrap">
       <blockquote>
-        <p>He is the only person we've worked with who treats a generated shot like a take that can be <em>wrong</em>. That single instinct is the whole difference.</p>
+        <p>They are the only studio we've worked with that treats a generated shot like a take that can be <em>wrong</em>. That single instinct is the whole difference.</p>
         <footer class="mono">Creative Director, Aeon &nbsp;·&nbsp; Spring Campaign 2026</footer>
       </blockquote>
     </div>
@@ -910,8 +918,8 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
     <div class="wrap">
       <p class="mono eyebrow"><span class="sechead__num">05</span> Contact</p>
       <h2 class="contact__title">Have something<br>that <em>can't be shot?</em></h2>
-      <a class="contact__mail" href="mailto:hello@samuelvardanian.com" id="magnet">
-        <span>hello@samuelvardanian.com</span>
+      <a class="contact__mail" href="mailto:hello@clahostudio.com" id="magnet">
+        <span>hello@clahostudio.com</span>
         <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 13L13 3M13 3H5.5M13 3v7.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <p class="contact__note">Currently booking commissions for Q2 2026. Send a brief, a deadline and a budget range — you'll get an honest yes or no within two days.</p>
@@ -922,18 +930,18 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
 <footer class="foot">
   <div class="wrap foot__grid">
     <div class="foot__brand">
-      <span class="nav__mark">SV</span>
+      <span class="nav__word nav__word--foot">Claho <span class="nav__word-2">Studio</span></span>
       <p class="mono">Synthetic cinema<br>built frame by frame</p>
     </div>
     <nav class="foot__links mono" aria-label="Social">
       <a href="#" rel="me noopener">Instagram</a>
       <a href="#" rel="me noopener">Vimeo</a>
       <a href="#" rel="me noopener">LinkedIn</a>
-      <a href="mailto:hello@samuelvardanian.com">Email</a>
+      <a href="mailto:hello@clahostudio.com">Email</a>
     </nav>
     <div class="foot__meta mono">
       <span id="clockCity2">Local</span> <span id="clockTime2">--:--:--</span>
-      <span class="foot__copy">© 2026 Samuel Vardanian</span>
+      <span class="foot__copy">© 2026 Claho Studio</span>
     </div>
   </div>
 </footer>
@@ -942,7 +950,7 @@ body.is-ready .hero .reveal{opacity:1; transform:none}
 <script src="assets/js/flythrough.js"></script>
 <script>
 /* ==========================================================================
-   Samuel Vardanian — interaction layer
+   Claho Studio — interaction layer
    No dependencies. Everything degrades: no JS = a readable, complete page.
    ========================================================================== */
 (function () {

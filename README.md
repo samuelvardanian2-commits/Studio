@@ -14,6 +14,7 @@ assets/frames/          ← optional flythrough sequence, frame_0001.jpg onward
 assets/img/hero-poster.jpg  ← optional still for slow connections
 scripts/build_preview.py    inlines everything into dist/preview.html
 SEEDANCE.md             ready-to-run Seedance 2.5 prompts for the hero film
+app/                    Prism — a multi-model AI chat interface (see app/README.md)
 ```
 
 ## Run it
@@ -78,3 +79,12 @@ Two more things worth knowing:
 `python3 scripts/build_preview.py` inlines the CSS and JS into `dist/preview.html`
 for hosts that want a single self-contained file. `index.html` stays the source of
 truth — never hand-edit the generated file.
+
+## The app in `app/`
+
+`app/` holds **Prism**, a separate single-page app: one interface in front of
+Anthropic, OpenAI, Google, OpenRouter, Groq, Mistral, DeepSeek, xAI and a local
+Ollama, with a compare mode that runs one prompt through several models side by
+side. Same rules as the site — static, no build step, no dependencies — and keys
+stay in the visitor's own browser, so hosting it costs nothing. `app/README.md`
+has the details.

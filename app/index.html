@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prism — every model, one room</title>
+<meta name="description" content="One calm interface for every frontier model. Bring your own key, talk to any model, or run the same prompt through several at once and compare.">
+<meta name="theme-color" content="#08080A">
+<meta name="color-scheme" content="dark light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/prism.css">
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#composer-input">Skip to the prompt</a>
+
+<div class="shell" id="shell">
+
+  <!-- ─── rail ─────────────────────────────────────────────────── -->
+  <aside class="rail" id="rail" aria-label="Conversations">
+    <div class="rail__head">
+      <a class="brand" href="../index.html" title="Back to the portfolio">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__name">Prism</span>
+      </a>
+      <button class="icon-btn rail__collapse" id="btn-collapse" title="Hide sidebar" aria-label="Hide sidebar">
+        <svg class="ico" aria-hidden="true"><use href="#i-panel"></use></svg>
+      </button>
+    </div>
+
+    <button class="new-chat" id="btn-new">
+      <svg class="ico" aria-hidden="true"><use href="#i-plus"></use></svg>
+      <span>New chat</span>
+      <kbd class="mono">⌘⇧O</kbd>
+    </button>
+
+    <div class="rail__search">
+      <svg class="ico" aria-hidden="true"><use href="#i-search"></use></svg>
+      <input id="chat-search" type="search" placeholder="Search chats" aria-label="Search conversations" autocomplete="off">
+    </div>
+
+    <nav class="chats" id="chats" aria-label="Chat history"></nav>
+
+    <div class="rail__foot">
+      <button class="rail__link" id="btn-settings">
+        <svg class="ico" aria-hidden="true"><use href="#i-sliders"></use></svg>
+        <span>Keys &amp; settings</span>
+        <span class="dot-warn" id="keys-warn" hidden title="No API key yet"></span>
+      </button>
+      <button class="rail__link" id="btn-theme">
+        <svg class="ico" aria-hidden="true"><use href="#i-moon"></use></svg>
+        <span>Theme</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ─── main ─────────────────────────────────────────────────── -->
+  <main class="main" id="main">
+
+    <header class="topbar">
+      <button class="icon-btn topbar__menu" id="btn-rail-open" aria-label="Show sidebar">
+        <svg class="ico" aria-hidden="true"><use href="#i-panel"></use></svg>
+      </button>
+
+      <div class="modes" role="tablist" aria-label="Mode">
+        <button class="mode is-on" id="mode-chat" role="tab" aria-selected="true">
+          <svg class="ico" aria-hidden="true"><use href="#i-chat"></use></svg><span>Chat</span>
+        </button>
+        <button class="mode" id="mode-compare" role="tab" aria-selected="false">
+          <svg class="ico" aria-hidden="true"><use href="#i-columns"></use></svg><span>Compare</span>
+        </button>
+      </div>
+
+      <div class="topbar__models" id="topbar-models"></div>
+
+      <div class="topbar__end">
+        <button class="icon-btn" id="btn-export" title="Export as Markdown" aria-label="Export conversation as Markdown">
+          <svg class="ico" aria-hidden="true"><use href="#i-download"></use></svg>
+        </button>
+        <button class="icon-btn" id="btn-tune" title="System prompt &amp; sampling" aria-label="System prompt and sampling">
+          <svg class="ico" aria-hidden="true"><use href="#i-tune"></use></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="scroller" id="scroller">
+      <div class="thread" id="thread"></div>
+
+      <section class="hello" id="hello">
+        <p class="eyebrow mono">Bring your own key · nothing leaves your browser</p>
+        <h1 class="hello__title">Every model, <em>one room.</em></h1>
+        <p class="hello__sub">Ask once. Or ask three of them at the same time and watch them disagree.</p>
+        <div class="starters" id="starters">
+          <button class="starter" data-p="Explain what you are and what you are good at, in four sentences. No preamble.">
+            <span class="starter__k mono">01</span>Introduce yourself, briefly
+          </button>
+          <button class="starter" data-p="Write a single-file HTML page with a canvas animation of drifting particles that react to the cursor. No libraries.">
+            <span class="starter__k mono">02</span>Build something in one file
+          </button>
+          <button class="starter" data-p="Here is a shot list for a 30 second film. Rewrite each line as a cinematic video prompt with lens, lighting and camera move.">
+            <span class="starter__k mono">03</span>Turn a shot list into prompts
+          </button>
+          <button class="starter" data-p="Give me the strongest argument against the idea I am about to describe, then the strongest argument for it.">
+            <span class="starter__k mono">04</span>Argue both sides
+          </button>
+        </div>
+        <p class="hello__hint">
+          No key yet? <button class="linkish" id="hello-settings">Add one in settings</button> —
+          it is stored only in this browser.
+        </p>
+      </section>
+    </div>
+
+    <div class="composer-wrap">
+      <div class="stopbar" id="stopbar" hidden>
+        <button class="stop" id="btn-stop">
+          <svg class="ico" aria-hidden="true"><use href="#i-stop"></use></svg> Stop generating
+        </button>
+      </div>
+
+      <form class="composer" id="composer">
+        <textarea id="composer-input" class="composer__input" rows="1"
+                  placeholder="Ask anything…" autocomplete="off" spellcheck="true"></textarea>
+        <div class="composer__bar">
+          <div class="composer__chips" id="composer-chips"></div>
+          <div class="composer__right">
+            <span class="count mono" id="char-count" aria-hidden="true"></span>
+            <button class="send" id="btn-send" type="submit" aria-label="Send">
+              <svg class="ico" aria-hidden="true"><use href="#i-send"></use></svg>
+            </button>
+          </div>
+        </div>
+      </form>
+      <p class="disclaimer mono">Models make things up. Check anything that matters.</p>
+    </div>
+  </main>
+</div>
+
+<!-- ─── model picker popover ───────────────────────────────────── -->
+<div class="pop" id="pop-models" hidden role="dialog" aria-label="Choose a model">
+  <div class="pop__search">
+    <svg class="ico" aria-hidden="true"><use href="#i-search"></use></svg>
+    <input id="model-search" type="search" placeholder="Search models…" autocomplete="off">
+  </div>
+  <div class="pop__list" id="model-list"></div>
+  <div class="pop__foot">
+    <input id="model-custom" type="text" placeholder="…or paste a model id" autocomplete="off">
+    <button class="btn btn--ghost" id="model-custom-go">Use</button>
+  </div>
+</div>
+
+<!-- ─── tuning popover ─────────────────────────────────────────── -->
+<div class="pop pop--tune" id="pop-tune" hidden role="dialog" aria-label="System prompt and sampling">
+  <label class="field">
+    <span class="field__label mono">System prompt</span>
+    <textarea id="tune-system" rows="5" placeholder="You are terse and concrete. No filler."></textarea>
+  </label>
+  <label class="field">
+    <span class="field__label mono">Temperature <b id="tune-temp-val">0.7</b></span>
+    <input id="tune-temp" type="range" min="0" max="2" step="0.05" value="0.7">
+  </label>
+  <label class="field">
+    <span class="field__label mono">Max tokens</span>
+    <input id="tune-max" type="number" min="256" max="128000" step="256" value="4096">
+  </label>
+  <p class="field__note">Applies to every model in this conversation.</p>
+</div>
+
+<!-- ─── settings ───────────────────────────────────────────────── -->
+<div class="overlay" id="overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <header class="sheet__head">
+      <h2 id="sheet-title">Keys &amp; settings</h2>
+      <button class="icon-btn" id="btn-close-settings" aria-label="Close">
+        <svg class="ico" aria-hidden="true"><use href="#i-x"></use></svg>
+      </button>
+    </header>
+
+    <div class="sheet__body">
+      <p class="notice">
+        <svg class="ico" aria-hidden="true"><use href="#i-lock"></use></svg>
+        <span>Keys live in this browser's <code>localStorage</code> and are sent straight to the
+        provider you are calling — there is no server in between. Anyone with access to this
+        browser profile can read them, so use scoped keys with a spending cap, and don't do this
+        on a shared machine.</span>
+      </p>
+
+      <div class="providers" id="providers"></div>
+
+      <h3 class="sheet__h3">Preferences</h3>
+      <div class="prefs">
+        <label class="switch">
+          <input type="checkbox" id="pref-stream" checked>
+          <span>Stream responses as they are written</span>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="pref-thinking" checked>
+          <span>Show reasoning blocks when a model exposes them</span>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="pref-enter" checked>
+          <span>Enter sends, Shift+Enter makes a new line</span>
+        </label>
+      </div>
+
+      <h3 class="sheet__h3">Data</h3>
+      <div class="danger">
+        <div>
+          <strong>Everything is local.</strong>
+          <span id="storage-stat" class="mono"></span>
+        </div>
+        <div class="danger__btns">
+          <button class="btn btn--ghost" id="btn-export-all">Export all chats</button>
+          <button class="btn btn--danger" id="btn-wipe">Erase everything</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── command palette ────────────────────────────────────────── -->
+<div class="overlay overlay--top" id="palette" hidden>
+  <div class="cmdk" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="cmdk__search">
+      <svg class="ico" aria-hidden="true"><use href="#i-search"></use></svg>
+      <input id="cmdk-input" type="text" placeholder="Jump to a chat, switch model, run a command…" autocomplete="off">
+      <kbd class="mono">esc</kbd>
+    </div>
+    <div class="cmdk__list" id="cmdk-list"></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<!-- ─── icons ──────────────────────────────────────────────────── -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+<symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 01-8 8H4l2-3a8 8 0 1115-5z"/></symbol>
+<symbol id="i-columns" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/></symbol>
+<symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h13M12 5l7 7-7 7"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 012-2h8"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 10-2 6.2"/><path d="M20 5v6h-6"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 11L12 15.5 16.5 11M5 19h14"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-tune" viewBox="0 0 24 24"><path d="M6 20V12M6 8V4M12 20v-6M12 10V4M18 20v-3M18 13V4"/><circle cx="6" cy="10" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="15" r="2"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+<symbol id="i-redo" viewBox="0 0 24 24"><path d="M4 13a8 8 0 102-6.2"/><path d="M4 5v6h6"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 3l2.5 5.2 5.5.8-4 3.9 1 5.6-5-2.7-5 2.7 1-5.6-4-3.9 5.5-.8z"/></symbol>
+<symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></symbol>
+</defs></svg>
+
+<script src="assets/js/store.js"></script>
+<script src="assets/js/markdown.js"></script>
+<script src="assets/js/providers.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

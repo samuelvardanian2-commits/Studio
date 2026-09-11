@@ -41,6 +41,14 @@ providers refuse the call.
 - **Model lists pulled from the provider.** The built-in list is a starting
   point that will age; *refresh* asks the provider what it actually serves
   today. Or paste any model id straight into the picker.
+- **It negotiates the dialect for you.** Reasoning models reject
+  `max_tokens` and want `max_completion_tokens`; some refuse a temperature
+  outright. Rather than keep a table of which model wants what — wrong within a
+  month — Prism reads the rejection, adjusts, retries, and remembers the
+  correction for the rest of the session. You see an answer, not a 400.
+- **Leaving a chat does not kill it.** Switch conversations mid-answer and the
+  stream keeps writing into the one it started in; the finished answer is
+  waiting when you come back.
 - **Everything local** — conversations, keys and preferences live in this
   browser only. Export one chat or all of them as Markdown whenever.
 - `⌘K` / `Ctrl+K` opens a palette for chats, models and commands.

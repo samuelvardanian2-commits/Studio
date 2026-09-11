@@ -22,8 +22,12 @@
 
   function write(key, value) {
     var raw = JSON.stringify(value);
-    try { if (ok) localStorage.setItem(NS + key, raw); else mem[key] = raw; }
-    catch (e) { mem[key] = raw; }     // quota exceeded: keep the session alive
+    try {
+      if (ok) localStorage.setItem(NS + key, raw); else mem[key] = raw;
+    } catch (e) {
+      mem[key] = raw;                 // quota exceeded: keep the session alive,
+      if (Store.onQuota) Store.onQuota(key);   // but say so rather than losing it quietly
+    }
     return value;
   }
 
@@ -42,6 +46,7 @@
 
   var Store = {
     available: ok,
+    onQuota: null,        // set by the app: browser storage is full
 
     /* ── settings ─────────────────────────────────────────────── */
     settings: function () {

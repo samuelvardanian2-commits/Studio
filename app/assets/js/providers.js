@@ -134,20 +134,77 @@
     return msg;
   }
 
-  async function fail(res, p) {
-    var text = '';
-    try { text = await res.text(); } catch (e) {}
+  function explain(status, text, p) {
     var detail = text;
     try {
       var j = JSON.parse(text);
       detail = (j.error && (j.error.message || j.error.type)) || j.message ||
                (j[0] && j[0].error && j[0].error.message) || text;
     } catch (e) {}
-    var extra = res.status === 401 ? ' — the key looks wrong or expired.'
-              : res.status === 402 ? ' — the account is out of credit.'
-              : res.status === 404 ? ' — that model id does not exist on this provider.'
-              : res.status === 429 ? ' — rate limited, wait a moment.' : '';
-    throw new Error(p.name + ' ' + res.status + extra + (detail ? ' ' + String(detail).slice(0, 400) : ''));
+    var extra = status === 401 ? ' — the key looks wrong or expired.'
+              : status === 402 ? ' — the account is out of credit.'
+              : status === 404 ? ' — that model id does not exist on this provider.'
+              : status === 429 ? ' — rate limited, wait a moment.' : '';
+    return new Error(p.name + ' ' + status + extra + (detail ? ' ' + String(detail).slice(0, 400) : ''));
+  }
+
+  async function fail(res, p) {
+    var text = '';
+    try { text = await res.text(); } catch (e) {}
+    throw explain(res.status, text, p);
+  }
+
+  /* Providers disagree about their own dialect: reasoning models want
+     max_completion_tokens instead of max_tokens, some refuse a temperature
+     at all, some choke on stream_options. Rather than keep a table of which
+     model wants what — which would be wrong within a month — read the
+     rejection, adjust, and retry. What worked is remembered per model so the
+     correction is paid for once per session. */
+  var QUIRKS = {};
+
+  function quirked(ref, body) {
+    var q = QUIRKS[ref];
+    if (!q) return body;
+    if (q.maxCompletion && 'max_tokens' in body) {
+      body.max_completion_tokens = body.max_tokens;
+      delete body.max_tokens;
+    }
+    if (q.noTemperature) delete body.temperature;
+    if (q.noStreamOptions) delete body.stream_options;
+    return body;
+  }
+
+  function adapt(ref, body, text) {
+    var t = String(text).toLowerCase(), q = QUIRKS[ref] || (QUIRKS[ref] = {});
+    if ('max_tokens' in body && t.indexOf('max_completion_tokens') >= 0) { q.maxCompletion = true; }
+    else if ('temperature' in body && t.indexOf('temperature') >= 0 &&
+             /unsupported|not support|only the default|does not support/.test(t)) { q.noTemperature = true; }
+    else if (body.stream_options && t.indexOf('stream_options') >= 0) { q.noStreamOptions = true; }
+    else return null;
+    return quirked(ref, body);
+  }
+
+  async function post(p, ref, key, url, body, signal) {
+    for (var attempt = 0; ; attempt++) {
+      var res;
+      try {
+        res = await fetch(url, {
+          method: 'POST', headers: headers(p, key),
+          body: JSON.stringify(quirked(ref, body)), signal: signal
+        });
+      } catch (e) {
+        var f = friendly(e, p);
+        if (f === null) throw e;
+        throw new Error(f);
+      }
+      if (res.ok) return res;
+
+      var text = '';
+      try { text = await res.text(); } catch (e) {}
+      var fixed = res.status === 400 && attempt < 3 ? adapt(ref, body, text) : null;
+      if (!fixed) throw explain(res.status, text, p);
+      body = fixed;
+    }
   }
 
   /* Reads an SSE body line by line without buffering the whole response. */
@@ -246,18 +303,7 @@
              : p.kind === 'google' ? bodyGoogle(p, opts)
              : bodyOpenAI(p, opts);
 
-    var res;
-    try {
-      res = await fetch(endpoint(p, opts), {
-        method: 'POST', headers: headers(p, key),
-        body: JSON.stringify(body), signal: o.signal
-      });
-    } catch (e) {
-      var f = friendly(e, p);
-      if (f === null) throw e;
-      throw new Error(f);
-    }
-    if (!res.ok) await fail(res, p);
+    var res = await post(p, o.ref, key, endpoint(p, opts), body, o.signal);
 
     var text = '', thinking = '', usage = null;
     function pushText(d) { if (d) { text += d; o.onText && o.onText(d); } }

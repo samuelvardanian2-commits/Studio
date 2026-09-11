@@ -78,11 +78,11 @@
     closeRailOnMobile();
   }
 
-  function persist() {
-    if (!S.chat || !S.chat.messages.length) return;
-    S.chat.models = S.models.slice();
-    S.chat.mode = S.mode;
-    Store.upsert(S.chat);
+  function persist(chat) {
+    chat = chat || S.chat;
+    if (!chat || !chat.messages.length) return;
+    if (chat === S.chat) { chat.models = S.models.slice(); chat.mode = S.mode; }
+    Store.upsert(chat);
     renderRail();
   }
 
@@ -173,6 +173,7 @@
       if (extra) S.models.push(extra);
     }
     if (mode === 'chat') S.models = S.models.slice(0, 1);
+    Store.setSetting('models', S.models);
     if (!quiet) Store.setSetting('mode', mode);
     S.settings = Store.settings();
     renderModels();
@@ -211,7 +212,9 @@
     var body;
     if (run.error) {
       body = '<div class="run__error">' + icon('warn') + '<div><b>That call failed.</b><br>' +
-        '<code>' + esc(run.error) + '</code></div></div>';
+        '<code>' + esc(run.error) + '</code><br>' +
+        '<button data-act="retry" data-mi="' + mi + '" data-ri="' + ri + '">Try again</button>' +
+        '</div></div>';
     } else if (!run.text && !run.done) {
       body = '<div class="skeleton"><i></i><i></i><i></i></div>';
     } else {
@@ -296,25 +299,27 @@
   }
 
   function fire(mi, hist) {
-    var msg = S.chat.messages[mi];
+    var chat = S.chat, msg = chat.messages[mi];
     setBusy(true);
     var jobs = msg.runs.map(function (run, ri) { return one(mi, ri, hist); });
     Promise.all(jobs).then(function () {
       setBusy(false);
       msg.runs.forEach(function (r) { r.live = false; r.done = true; });
-      persist();
+      persist(chat);
     });
   }
 
   function one(mi, ri, hist) {
-    var msg = S.chat.messages[mi], run = msg.runs[ri];
+    var chat = S.chat, msg = chat.messages[mi], run = msg.runs[ri];
     var ctl = new AbortController();
     S.aborts.push(ctl);
 
     run.text = ''; run.thinking = ''; run.error = null; run.live = true; run.done = false;
     var t0 = performance.now(), timer = 0, last = 0;
 
-    function node() { return $('.run[data-mi="' + mi + '"][data-ri="' + ri + '"]'); }
+    function node() {
+      return S.chat === chat ? $('.run[data-mi="' + mi + '"][data-ri="' + ri + '"]') : null;
+    }
     function paint() {
       timer = 0; last = Date.now();
       var n = node(); if (!n) return;
@@ -358,7 +363,7 @@
       var n = node();
       if (n) n.outerHTML = runHTML(run, mi, ri, msg.runs.length > 1 && (msg.pick || 0) === ri);
       scrollDown();
-      persist();
+      persist(chat);
     });
   }
 
@@ -376,7 +381,7 @@
   }
 
   function retry(mi, ri) {
-    if (S.busy) return;
+    if (S.busy) return toast('Still answering — stop that first.', true);
     var hist = history(mi);
     setBusy(true);
     one(mi, ri, hist).then(function () { setBusy(false); });
@@ -438,7 +443,7 @@
   function renderPicker(q) {
     var items = pickerItems(q);
     S.picker.items = items.filter(function (i) { return !i.group; });
-    var cur = S.models[S.picker.slot];
+    var cur = S.models[S.picker.slot], n = -1;
     var html = items.map(function (it) {
       if (it.group) {
         var p = it.group;
@@ -446,7 +451,7 @@
           (it.locked ? ' — no key' : '') +
           '<button data-refresh="' + p.id + '">refresh</button></div>';
       }
-      var n = S.picker.items.indexOf(it);
+      n++;
       return '<button class="opt' + (it.locked ? ' opt--locked' : '') + (n === S.picker.cursor ? ' is-cursor' : '') +
         '" data-ref="' + esc(it.ref) + '">' +
         '<span class="opt__dot" style="background:' + it.p.dot + '"></span>' +
@@ -511,12 +516,21 @@
     $('#keys-warn').hidden = Object.keys(Store.keys()).length > 0;
   }
 
+  function closeSettings() {
+    $('#overlay').hidden = true;
+    if (S.lastFocus && S.lastFocus.focus) S.lastFocus.focus();
+    S.lastFocus = null;
+  }
+
   function openSettings() {
+    S.lastFocus = document.activeElement;
     renderProviders();
     $('#pref-stream').checked = S.settings.stream;
     $('#pref-thinking').checked = S.settings.showThinking;
     $('#pref-enter').checked = S.settings.enterSends;
     $('#overlay').hidden = false;
+    var first = $('#providers input');
+    if (first) first.focus();
   }
 
   /* ── export ───────────────────────────────────────────────────────── */
@@ -631,6 +645,12 @@
       if (window.innerWidth <= 900) sh.classList.toggle('is-open');
       else { sh.classList.remove('is-collapsed'); Store.setSetting('railCollapsed', false); }
     });
+    $('#chats').addEventListener('keydown', function (e) {
+      var item = e.target.closest('[data-open]');
+      if (!item || (e.key !== 'Enter' && e.key !== ' ')) return;
+      e.preventDefault();
+      openChat(item.dataset.open);
+    });
     $('#chats').addEventListener('click', function (e) {
       var kill = e.target.closest('[data-kill]');
       if (kill) {
@@ -691,11 +711,19 @@
       var opt = e.target.closest('[data-ref]');
       if (opt) choose(opt.dataset.ref);
     });
-    $('#model-custom-go').addEventListener('click', function () {
+    function useCustom() {
       var v = $('#model-custom').value.trim();
       if (!v) return;
-      choose(v.indexOf('/') > 0 && Providers.get(v.split('/')[0]) ? v : 'openrouter/' + v);
+      /* "openai/gpt-x" names its provider; a bare id belongs to whichever
+         provider this slot already points at. */
+      var named = v.indexOf('/') > 0 && Providers.get(v.slice(0, v.indexOf('/')));
+      var here = Providers.split(S.models[S.picker.slot] || '').provider;
+      choose(named ? v : (here ? here.id : 'openrouter') + '/' + v);
       $('#model-custom').value = '';
+    }
+    $('#model-custom-go').addEventListener('click', useCustom);
+    $('#model-custom').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); useCustom(); }
     });
 
     /* tuning */
@@ -758,9 +786,9 @@
 
     /* settings sheet */
     $('#btn-settings').addEventListener('click', openSettings);
-    $('#btn-close-settings').addEventListener('click', function () { $('#overlay').hidden = true; });
+    $('#btn-close-settings').addEventListener('click', closeSettings);
     $('#overlay').addEventListener('click', function (e) {
-      if (e.target === this) this.hidden = true;
+      if (e.target === this) closeSettings();
     });
     $('#providers').addEventListener('input', function (e) {
       var k = e.target.dataset.key, b = e.target.dataset.base;
@@ -772,11 +800,17 @@
     });
     $('#providers').addEventListener('change', function (e) {
       var k = e.target.dataset.key;
-      if (k && e.target.value.trim() && !Providers.models(k).length) {
-        Providers.refresh(k).then(function (ids) {
-          toast(ids.length + ' models from ' + Providers.get(k).name); renderProviders();
-        }).catch(function () {});
-      }
+      if (!k || !e.target.value.trim()) return;
+      /* asking for the catalogue doubles as a check that the key works */
+      var pill = $('.prov[data-prov="' + k + '"] .prov__state');
+      if (pill) { pill.textContent = 'checking'; pill.className = 'prov__state'; }
+      Providers.refresh(k).then(function (ids) {
+        toast(ids.length + ' models from ' + Providers.get(k).name);
+        renderProviders(); renderModels();
+      }).catch(function (err) {
+        toast(err.message, true);
+        if (pill) { pill.textContent = 'rejected'; pill.className = 'prov__state is-bad'; }
+      });
     });
     $('#providers').addEventListener('click', function (e) {
       var rev = e.target.closest('[data-reveal]');
@@ -844,7 +878,8 @@
       else if (mod && e.shiftKey && e.key.toLowerCase() === 'o') { e.preventDefault(); newChat(); }
       else if (e.key === 'Escape') {
         $('#pop-models').hidden = true; $('#pop-tune').hidden = true;
-        $('#palette').hidden = true; $('#overlay').hidden = true;
+        $('#palette').hidden = true;
+        if (!$('#overlay').hidden) closeSettings();
         closeRailOnMobile();
       }
     });
@@ -852,14 +887,18 @@
       if (!e.target.closest('#pop-models') && !e.target.closest('[data-slot]')) $('#pop-models').hidden = true;
       if (!e.target.closest('#pop-tune') && !e.target.closest('#btn-tune') &&
           !e.target.closest('[data-open-tune]')) $('#pop-tune').hidden = true;
-      if (e.target.closest('#shell.is-open') === null && $('#shell').classList.contains('is-open') &&
-          !e.target.closest('.rail') && !e.target.closest('#btn-rail-open')) closeRailOnMobile();
+      if ($('#shell').classList.contains('is-open') && !e.target.closest('.rail') &&
+          !e.target.closest('#btn-rail-open')) closeRailOnMobile();
     });
   }
 
   /* ── boot ─────────────────────────────────────────────────────────── */
   function boot() {
     theme(S.settings.theme);
+    Store.onQuota = function () {
+      Store.onQuota = null;   // once is enough
+      toast('This browser will not store any more — export and delete old chats.', true);
+    };
     S.models = (S.settings.models || []).filter(function (r) { return Providers.split(r).provider; });
     if (!S.models.length) S.models = ['anthropic/claude-sonnet-5'];
     if ($('#shell') && S.settings.railCollapsed) $('#shell').classList.add('is-collapsed');
